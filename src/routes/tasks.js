@@ -14,9 +14,34 @@ router.post("/tasks", auth, async (req, res) => {
   }
 });
 
+// GET /tasks?sortBy=createdAt:desc
 router.get("/tasks", auth, async (req, res) => {
+  // with match we can specify which data we want
+  const match = {};
+  const sort = {};
+  if (req.query.completed) {
+    match.completed = req.query.completed === "true";
+  }
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(":");
+    //ascending 1 and desc is -1
+    sort[parts[0]] = parts[1] === desc ? -1 : 1;
+  }
   try {
-    await req.user.populate("tasks").execPopulate();
+    await req.user
+      .populate({
+        path: "tasks",
+        match,
+        Options: {
+          //setting pagination
+          //the limit option allow us to limit the number of results per req
+          limit: parseInt(req.query.limit),
+          skip: parseInt(req.query.skip),
+          //sorting
+          sort,
+        },
+      })
+      .execPopulate();
     res.send(req.user.tasks);
   } catch (e) {
     res.status(500).send(e.message);

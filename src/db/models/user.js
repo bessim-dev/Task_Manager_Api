@@ -4,51 +4,56 @@ const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const Task = require("./task");
 const { Schema } = mongoose;
-const UserSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Invalid Email!!");
-      }
+const UserSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
     },
-  },
-  password: {
-    type: String,
-    required: true,
-    minLength: 7,
-    trim: true,
-    validate(value) {
-      if (value.includes("password")) {
-        throw new Error("password musn't contains password");
-      }
-    },
-  },
-  age: {
-    type: Number,
-    default: 0,
-    validate(value) {
-      if (value < 0) {
-        throw new Error("age must be a positive number");
-      }
-    },
-  },
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid Email!!");
+        }
       },
     },
-  ],
-});
+    password: {
+      type: String,
+      required: true,
+      minLength: 7,
+      trim: true,
+      validate(value) {
+        if (value.includes("password")) {
+          throw new Error("password musn't contains password");
+        }
+      },
+    },
+    age: {
+      type: Number,
+      default: 0,
+      validate(value) {
+        if (value < 0) {
+          throw new Error("age must be a positive number");
+        }
+      },
+    },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
 UserSchema.virtual("tasks", {
   ref: "Task",
   localField: "_id",
